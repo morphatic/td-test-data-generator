@@ -7,155 +7,22 @@ import {
   getDateCols,
   getGeoCols,
   getSelectedCols,
+  getColsToMangleChoices,
+  getFloatColsChoices,
+  getDateColsChoices,
+  getGeoColsChoices,
 } from '../src/colspecUtilities.mjs'
 
+// using a standard set of column specificatins for testing
+import baseColSpec from './colspec.json' assert { type: 'json' }
 
 describe('Column Specification Helpers', () => {
 
   let colspec
 
   beforeEach(() => {
-    colspec = [
-      {
-        name: 'id',
-        cat: 'datatype',
-        type: 'number',
-        unique: true,
-        precision: 1,
-        min: 10001,
-        max: 99999
-      },
-      {
-        name: 'Transaction Date',
-        variants: [
-          'Txn Date',
-          'Date of Transaction'
-        ],
-        cat: 'date',
-        type: 'past',
-        refDate: 'now',
-        years: 3
-      },
-      {
-        name: 'Verification Date',
-        variants: [
-          'Verified Date',
-          'Date Verified'
-        ],
-        cat: 'date',
-        type: 'soon',
-        refDate: 'Transaction Date',
-        days: 7
-      },
-      {
-        name: 'Transaction Amount',
-        variants: [
-          'Txn Amt',
-          'Amount of Transaction'
-        ],
-        cat: 'finance',
-        type: 'amount',
-        dec: 2,
-        min: 100,
-        max: 99999
-      },
-      {
-        name: 'Transaction Fee',
-        variants: [
-          'Txn Fee',
-          'Fee for Transaction'
-        ],
-        type: 'number',
-        ref: 'Transaction Amount',
-        pct: 2,
-        dec: 2
-      },
-      {
-        name: 'From',
-        variants: [
-          'Sender',
-          'Origin'
-        ],
-        cat: 'finance',
-        type: 'account'
-      },
-      {
-        name: 'To',
-        variants: [
-          'Receiver',
-          'Destination'
-        ],
-        cat: 'finance',
-        type: 'account'
-      },
-      {
-        name: 'Sender Name',
-        variants: [
-          'From Name',
-          'Origin Name'
-        ],
-        cat: 'company',
-        type: 'name'
-      },
-      {
-        name: 'Receiver Name',
-        variants: [
-          'To Name',
-          'Destination Name'
-        ],
-        cat: 'company',
-        type: 'name'
-      },
-      {
-        name: 'Account Type',
-        variants: [
-          'Acct Type',
-          'Type of Account'
-        ],
-        cat: 'commerce',
-        type: 'department'
-      },
-      {
-        name: 'From Latitude',
-        variants: [
-          'From Lat',
-          'Sender Lat'
-        ],
-        cat: 'address',
-        type: 'latitude',
-        optional: true
-      },
-      {
-        name: 'From Longitude',
-        variants: [
-          'From Long',
-          'Sender Lon'
-        ],
-        cat: 'address',
-        type: 'longitude',
-        optional: true
-      },
-      {
-        name: 'To Latitude',
-        variants: [
-          'To Lat',
-          'Receiver Lat'
-        ],
-        cat: 'address',
-        type: 'latitude',
-        optional: true
-      },
-      {
-        name: 'To Longitude',
-        variants: [
-          'To Long',
-          'Receiver Lon'
-        ],
-        cat: 'address',
-        type: 'longitude',
-        optional: true
-      }
-    ]
+    // initialize `colspec` with a deep copy of `baseColSpec`
+    colspec = structuredClone(baseColSpec)
   })  
 
 
@@ -207,5 +74,57 @@ describe('Column Specification Helpers', () => {
     const withoutOpts = getSelectedCols(false, colspec)
 
     expect(withOpts.length > withoutOpts.length).toBe(true)
+  })
+
+  it('can create a list of column names whose names can be mangled', () => {
+    const includeOpts = true
+    const colsWithVariants = getColsWithNameVariants(colspec)
+    const requiredColsWithVariants = getColsWithNameVariants(getRequiredCols(colspec))
+    const allColNames = getColsToMangleChoices(includeOpts, colspec)
+    const requiredColNames = getColsToMangleChoices(!includeOpts, colspec)
+
+    expect(allColNames[0]).toBe('None')
+    expect(allColNames.length).toBe(colsWithVariants.length + 1)
+    expect(requiredColNames[0]).toBe('None')
+    expect(requiredColNames.length).toBe(requiredColsWithVariants.length + 1)
+  })
+
+  it('can create a list of column names whose floats can be changed', () => {
+    const includeOpts = true
+    const colsWithFloats = getFloatCols(colspec)
+    const requiredColsWithFloats = getFloatCols(getRequiredCols(colspec))
+    const allColNames = getFloatColsChoices(includeOpts, colspec)
+    const requiredColNames = getFloatColsChoices(!includeOpts, colspec)
+
+    expect(allColNames[0]).toBe('None')
+    expect(allColNames.length).toBe(colsWithFloats.length + 1)
+    expect(requiredColNames[0]).toBe('None')
+    expect(requiredColNames.length).toBe(requiredColsWithFloats.length + 1)
+  })
+
+  it('can create a list of column names whose dates can be changed', () => {
+    const includeOpts = true
+    const colsWithDates = getDateCols(colspec)
+    const requiredColsWithDates = getDateCols(getRequiredCols(colspec))
+    const allColNames = getDateColsChoices(includeOpts, colspec)
+    const requiredColNames = getDateColsChoices(!includeOpts, colspec)
+
+    expect(allColNames[0]).toBe('None')
+    expect(allColNames.length).toBe(colsWithDates.length + 1)
+    expect(requiredColNames[0]).toBe('None')
+    expect(requiredColNames.length).toBe(requiredColsWithDates.length + 1)
+  })
+
+  it('can create a list of column names whose lat/lon can be changed', () => {
+    const includeOpts = true
+    const colsWithGeo = getGeoCols(colspec)
+    const requiredColsWithGeo = getGeoCols(getRequiredCols(colspec))
+    const allColNames = getGeoColsChoices(includeOpts, colspec)
+    const requiredColNames = getGeoColsChoices(!includeOpts, colspec)
+
+    expect(allColNames[0]).toBe('None')
+    expect(allColNames.length).toBe(colsWithGeo.length + 1)
+    expect(requiredColNames[0]).toBe('None')
+    expect(requiredColNames.length).toBe(requiredColsWithGeo.length + 1)
   })
 })

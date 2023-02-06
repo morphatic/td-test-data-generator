@@ -11,10 +11,10 @@ import inquirer from 'inquirer'
 import {
   getColNames,
   getOptionalCols,
-  getColsWithNameVariants,
-  getDateCols,
-  getGeoCols,
-  getSelectedCols,
+  getColsToMangleChoices,
+  getFloatColsChoices,
+  getDateColsChoices,
+  getGeoColsChoices,
 } from './src/colspecUtilities.mjs'
 
 import colspec from './colspec.json' assert { type: 'json' }
@@ -56,49 +56,49 @@ inquirer
       type: 'checkbox',
       name: 'mangleColNames',
       message: 'Select which columns should have their names altered between SOURCE and TARGET',
-      choices: ({ includeOptional }) =>
-      ['None', ...getColNames(getColsWithNameVariants(getSelectedCols(includeOptional, colspec)))],
+      choices: ({ includeOptional }) => getColsToMangleChoices(includeOptional, colspec),
       default: ['None'],
       validate: val => {
-        const valid = val.includes('None') && val.length === 1 || val.length > 0
+        const valid = (val.includes('None') && val.length === 1) || val.length > 0
         return valid || 'Please select one or more columns OR "None"'
       },
+      when: ({ includeOptional }) => getColsToMangleChoices(includeOptional, colspec).length > 1,
     },
     {
       type: 'checkbox',
       name: 'floatColsToTweak',
       message: 'Select which float columns should have their values altered between SOURCE and TARGET',
-      choices: ({ includeOptional }) =>
-        ['None', ...getColNames(getFloatCols(getSelectedCols(includeOptional, colspec)))],
+      choices: ({ includeOptional }) => getFloatColsChoices(includeOptional, colspec),
       default: ['None'],
       validate: val => {
         const valid = val.includes('None') && val.length === 1 || val.length > 0
         return valid || 'Please select one or more columns OR "None"'
       },
+      when: ({ includeOptional }) => getFloatColsChoices(includeOptional, colspec).length > 1,
     },
     {
       type: 'checkbox',
       name: 'dateColsToMangle',
       message: 'Select which date columns should have their values altered between SOURCE and TARGET',
-      choices: ({ includeOptional }) =>
-        ['None', ...getColNames(getDateCols(getSelectedCols(includeOptional, colspec)))],
+      choices: ({ includeOptional }) => getDateColsChoices(includeOptional, colspec),
       default: ['None'],
       validate: val => {
         const valid = val.includes('None') && val.length === 1 || val.length > 0
         return valid || 'Please select one or more columns OR "None"'
       },
+      when: ({ includeOptional }) => getDateColsChoices(includeOptional, colspec).length > 1,
     },
     {
       type: 'checkbox',
       name: 'geoColsToMangle',
       message: 'Select which lat/lon columns should have their values altered between SOURCE and TARGET',
-      choices: ({ includeOptional }) =>
-        ['None', ...getColNames(getGeoCols(getSelectedCols(includeOptional, colspec)))],
+      choices: ({ includeOptional }) => getGeoColsChoices(includeOptional, colspec),
       default: ['None'],
       validate: val => {
         const valid = val.includes('None') && val.length === 1 || val.length > 0
         return valid || 'Please select one or more columns OR "None"'
       },
+      when: ({ includeOptional }) => getGeoColsChoices(includeOptional, colspec).length > 1,
     },
   ])
   .then(({
@@ -122,7 +122,14 @@ inquirer
   }) => {
     // do something with answers
     console.log('\nOutput')
-    console.log(JSON.stringify(answers))
+    console.log(includeOptional,
+      sourceCount,
+      rowDiff,
+      colsRandomized,
+      mangleColNames,
+      floatColsToTweak,
+      dateColsToMangle,
+      geoColsToMangle)
   })
   .catch(error => {
     if (error.isTtyError) {
@@ -130,4 +137,5 @@ inquirer
     } else {
       // something else went wrong
     }
+    console.log(error)
   })

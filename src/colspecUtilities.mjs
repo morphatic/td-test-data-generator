@@ -6,6 +6,8 @@
  * @module
  */
 
+import pipe from 'ramda/src/pipe.js'
+
 /**
  * Converts the col spec into an array of column names
  * 
@@ -70,3 +72,50 @@ export const getGeoCols = colspec => colspec.filter(col => ['latitude', 'longitu
  * @returns {array}           The array of colspec objects selected by the user
  */
 export const getSelectedCols = (opts, colspec) => opts ? colspec : getRequiredCols(colspec)
+
+/**
+ * Adds the "None" choice to the beginning of `choices` lists for checkbox questions
+ * 
+ * @param   {array} colNames An array of column names
+ * @returns {array}          The array of column names with "None" added to the beginning
+ */
+export const addNone = colNames => ['None', ...colNames]
+
+/**
+ * Returns an array of column names that are candidates for being mangled in TARGET
+ * 
+ * @param   {boolean} opts    A boolean indicating whether optional columns should be included
+ * @param   {array}   colspec An array of objects representing column specifications
+ * @returns {array}           The array of mangleable column names
+ */
+export const getColsToMangleChoices = (opts, colspec) => pipe(getSelectedCols, getColsWithNameVariants, getColNames, addNone)(opts, colspec)
+
+/**
+ * Returns an array of column names for columns containing floats that are candidates for
+ * being changed in TARGET
+ * 
+ * @param   {boolean} opts    A boolean indicating whether optional columns should be included
+ * @param   {array}   colspec An array of objects representing column specifications
+ * @returns {array}           The array of column names that contain floats to change
+ */
+export const getFloatColsChoices = (opts, colspec) => pipe(getSelectedCols, getFloatCols, getColNames, addNone)(opts, colspec)
+
+/**
+ * Returns an array of column names for columns containing dates that are candidates for
+ * being changed in TARGET
+ * 
+ * @param   {boolean} opts    A boolean indicating whether optional columns should be included
+ * @param   {array}   colspec An array of objects representing column specifications
+ * @returns {array}           The array of column names that contain dates to change
+ */
+export const getDateColsChoices = (opts, colspec) => pipe(getSelectedCols, getDateCols, getColNames, addNone)(opts, colspec)
+
+/**
+ * Returns an array of column names for columns containing lat/lon that are candidates for
+ * being changed in TARGET
+ * 
+ * @param   {boolean} opts    A boolean indicating whether optional columns should be included
+ * @param   {array}   colspec An array of objects representing column specifications
+ * @returns {array}           The array of column names that contain lat/lon to change
+ */
+export const getGeoColsChoices = (opts, colspec) => pipe(getSelectedCols, getGeoCols, getColNames, addNone)(opts, colspec)
