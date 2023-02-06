@@ -1,0 +1,141 @@
+[
+  {
+    "name": "id",
+    "cat": "datatype",
+    "type": "number",
+    "unique": true,
+    "precision": 1,
+    "min": 10001,
+    "max": 99999
+  },
+  {
+    "name": "Transaction Date",
+    "variants": [
+      "Txn Date",
+      "Date of Transaction"
+    ],
+    "cat": "date",
+    "type": "past",
+    "refDate": "now",
+    "years": 3
+  },
+  {
+    "name": "Verification Date",
+    "variants": [
+      "Verified Date",
+      "Date Verified"
+    ],
+    "cat": "date",
+    "type": "soon",
+    "refDate": "Transaction Date",
+    "days": 7
+  },
+  {
+    "name": "Transaction Amount",
+    "variants": [
+      "Txn Amt",
+      "Amount of Transaction"
+    ],
+    "cat": "finance",
+    "type": "amount",
+    "dec": 2,
+    "min": 100,
+    "max": 99999
+  },
+  {
+    "name": "Transaction Fee",
+    "variants": [
+      "Txn Fee",
+      "Fee for Transaction"
+    ],
+    "type": "number",
+    "ref": "Transaction Amount",
+    "pct": 2,
+    "dec": 2
+  },
+  {
+    "name": "From",
+    "variants": [
+      "Sender",
+      "Origin"
+    ],
+    "cat": "finance",
+    "type": "account"
+  },
+  {
+    "name": "To",
+    "variants": [
+      "Receiver",
+      "Destination"
+    ],
+    "cat": "finance",
+    "type": "account"
+  },
+  {
+    "name": "Sender Name",
+    "variants": [
+      "From Name",
+      "Origin Name"
+    ],
+    "cat": "company",
+    "type": "name"
+  },
+  {
+    "name": "Receiver Name",
+    "variants": [
+      "To Name",
+      "Destination Name"
+    ],
+    "cat": "company",
+    "type": "name"
+  },
+  {
+    "name": "Account Type",
+    "variants": [
+      "Acct Type",
+      "Type of Account"
+    ],
+    "cat": "commerce",
+    "type": "department"
+  },
+  {
+    "name": "From Latitude",
+    "variants": [
+      "From Lat",
+      "Sender Lat"
+    ],
+    "cat": "address",
+    "type": "latitude",
+    "optional": true
+  },
+  {
+    "name": "From Longitude",
+    "variants": [
+      "From Long",
+      "Sender Lon"
+    ],
+    "cat": "address",
+    "type": "longitude",
+    "optional": true
+  },
+  {
+    "name": "To Latitude",
+    "variants": [
+      "To Lat",
+      "Receiver Lat"
+    ],
+    "cat": "address",
+    "type": "latitude",
+    "optional": true
+  },
+  {
+    "name": "To Longitude",
+    "variants": [
+      "To Long",
+      "Receiver Lon"
+    ],
+    "cat": "address",
+    "type": "longitude",
+    "optional": true
+  }
+]
