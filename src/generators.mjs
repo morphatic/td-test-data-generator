@@ -117,15 +117,11 @@ export const generate = (answers, colspec) => {
   }
 
   if (colsRandomized) {
-    const rand = Math.random()
-    const headers = target[0]
-    let data = target.slice(1)
-    data = transpose(data)
-    headers.sort(() => 0.5 - rand)
-    data.sort(() => 0.5 - rand)
-    // target = shuffleArray(target)
-    data = transpose(data)
-    target = [headers, ...data]
+    const headers = JSON.parse(JSON.stringify(target[0]))
+    const ids = JSON.parse(JSON.stringify(target[1]))
+    const newHeaders = [headers[0], ...headers.slice(1).sort(() => 0.5 - Math.random())]
+    const newOrder = target[0].map(h => newHeaders.findIndex(h2 => h === h2))
+    target = shuffleArray(target, newOrder, newHeaders, ids)
   }
 
   // transpose both tables
@@ -146,32 +142,8 @@ export const generateCsv = data => {
   const __dirname = path.dirname(fileURLToPath(import.meta.url))
   const sourcePath = `${__dirname.replace('src', 'output')}${path.sep}source_${new Date().getTime()}.csv`
   const targetPath = `${__dirname.replace('src', 'output')}${path.sep}target_${new Date().getTime()}.csv`
-  const sourceContent = data.source.reduce((content, row, i) => {
-    content += row.reduce((csv, val, i, row) => {
-      csv += typeof val === 'number' ? `,${val}` : `,"${val}"`
-      if (i === 0) {
-        csv = csv.replace(',', '')
-      }
-      if (i === row.length - 1) {
-        csv += '\n'
-      }
-      return csv
-    }, '')
-    return content
-  }, '')
-  console.log(data.target)
-  const targetContent = data.target.reduce((content, row) => {
-    content += row.reduce((csv, val, i, row) => {
-      csv += typeof val === 'number' ? `,${val}` : `,"${val}"`
-      if (i === 0) {
-        csv = csv.replace(',', '')
-      }
-      if (i === row.length - 1) {
-        csv += '\n'
-      }
-      return csv
-    }, '')
-  }, '')
+  const sourceContent = convertToCsv(data.source)
+  const targetContent = convertToCsv(data.target)
   try {
     fs.writeFileSync(sourcePath, sourceContent)
     fs.writeFileSync(targetPath, targetContent)
@@ -239,8 +211,6 @@ const randomItem = items => items[Math.floor(Math.random() * items.length)]
  * @param   {array} table The 2D array to be transposed, any number of rows/columns okay
  * @returns {array}       The transposed array
  */
-// const transpose = table => table[0].map((_, i) => table.map(row => row[i]))
-// const transpose = table => table[0].map((_, c) => table.map((_, r) => table[r][c]))
 const transpose = table => table.reduce((r, a) => a.map((v, i) => [...(r[i] || []), v]), [])
 
 /**
@@ -280,9 +250,30 @@ const maybeMangleGeo = coord => {
   }
 }
 
-const shuffleArray = arr => {
-  const idCol = arr[0]
-  const cols = arr.slice(1)
-  const shuffled = cols.sort(() => 0.5 - Math.random())
-  return [idCol, ...shuffled]
+const shuffleArray = (original, newOrder, newHeaders, ids) => {
+  newOrder = newOrder.map(o => o + 1) // adjust indices to account for header row
+  newOrder.unshift(undefined) // add a dummy element to the beginning of newOrder
+  const shuffled = newOrder.reduce((no, o, i) => {
+    if (i === 0) {
+      no[0] = newHeaders
+    } else {
+      no[o] = original[i]
+    }
+    return no
+  }, Array.from({ length: original.length }))
+  return shuffled
 }
+
+const convertToCsv = tableArray => tableArray.reduce((content, row) => {
+  content += row.reduce((csv, val, i, row) => {
+    csv += typeof val === 'number' ? `,${val}` : `,"${val}"`
+    if (i === 0) {
+      csv = csv.replace(',', '')
+    }
+    if (i === row.length - 1) {
+      csv += '\n'
+    }
+    return csv
+  }, '')
+  return content
+}, '')
