@@ -16,6 +16,7 @@ import {
   getDateColsChoices,
   getGeoColsChoices,
 } from './src/colspecUtilities.mjs'
+import { generate, generateCsv } from './src/generators.mjs'
 
 import colspec from './colspec.json' assert { type: 'json' }
 
@@ -30,21 +31,21 @@ inquirer
       default: false,
     },
     {
-      type: 'input',
+      type: 'number',
       name: 'sourceCount',
       message: 'How many rows should be in the SOURCE data set?',
       default: 100,
-      validate: val => !isNaN(parseInt(val)) && val > 0 || 'Please enter a positive integer'
+      validate: val => !isNaN(parseInt(val)) && val > 0 || 'Please enter a positive integer',
     },
     {
-      type: 'input',
+      type: 'number',
       name: 'rowDiff',
-      message: 'How many fewer/additinal rows should be in the TARGET data set?',
+      message: 'How many fewer/additional rows should be in the TARGET data set?',
       default: 0,
       validate: (val, { sourceCount: sc }) =>
            !isNaN(parseInt(val)) 
         && parseInt(sc) - parseInt(val) >= 0
-        || `Please enter an integer that will not result in <=0 rows in TARGET: ${sc}`
+        || `Please enter an integer that will not result in <=0 rows in TARGET: ${sc}`,
     },
     {
       type: 'confirm',
@@ -101,16 +102,7 @@ inquirer
       when: ({ includeOptional }) => getGeoColsChoices(includeOptional, colspec).length > 1,
     },
   ])
-  .then(({
-    includeOptional,
-    sourceCount,
-    rowDiff,
-    colsRandomized,
-    mangleColNames,
-    floatColsToTweak,
-    dateColsToMangle,
-    geoColsToMangle
-  } = {
+  .then((answers = {
     includeOptional: false,
     sourceCount: 100,
     rowDiff: 15,
@@ -120,16 +112,13 @@ inquirer
     dateColsToMangle: [],
     geoColsToMangle: []
   }) => {
-    // do something with answers
-    console.log('\nOutput')
-    console.log(includeOptional,
-      sourceCount,
-      rowDiff,
-      colsRandomized,
-      mangleColNames,
-      floatColsToTweak,
-      dateColsToMangle,
-      geoColsToMangle)
+    // console.log(answers)
+    const output = generate(answers, colspec)
+    // console.log(JSON.stringify(output.source))
+    // console.log(JSON.stringify(output.target))
+    // console.log("source rows:", output.source.length)
+    // console.log("target rows:", output.target.length)
+    generateCsv(output)
   })
   .catch(error => {
     if (error.isTtyError) {

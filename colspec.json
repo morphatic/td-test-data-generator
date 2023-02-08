@@ -3,10 +3,11 @@
     "name": "id",
     "cat": "datatype",
     "type": "number",
+    "opts": true,
     "unique": true,
-    "precision": 1,
-    "min": 10001,
-    "max": 99999
+    "min": 100001,
+    "max": 999999,
+    "precision": 1
   },
   {
     "name": "Transaction Date",
@@ -16,8 +17,8 @@
     ],
     "cat": "date",
     "type": "past",
-    "refDate": "now",
-    "years": 3
+    "years": 3,
+    "refDate": "now"
   },
   {
     "name": "Verification Date",
@@ -27,8 +28,8 @@
     ],
     "cat": "date",
     "type": "soon",
-    "refDate": "Transaction Date",
-    "days": 7
+    "days": 7,
+    "refDate": "Transaction Date"
   },
   {
     "name": "Transaction Amount",
@@ -38,9 +39,10 @@
     ],
     "cat": "finance",
     "type": "amount",
-    "dec": 2,
+    "convert": true,
     "min": 100,
-    "max": 99999
+    "max": 99999,
+    "dec": 2
   },
   {
     "name": "Transaction Fee",
@@ -48,9 +50,11 @@
       "Txn Fee",
       "Fee for Transaction"
     ],
-    "type": "number",
-    "ref": "Transaction Amount",
-    "pct": 2,
+    "cat": "finance",
+    "type": "amount",
+    "convert": true,
+    "min": 2,
+    "max": 50,
     "dec": 2
   },
   {
@@ -106,6 +110,7 @@
     ],
     "cat": "address",
     "type": "latitude",
+    "convert": true,
     "optional": true
   },
   {
@@ -116,6 +121,7 @@
     ],
     "cat": "address",
     "type": "longitude",
+    "convert": true,
     "optional": true
   },
   {
@@ -126,6 +132,7 @@
     ],
     "cat": "address",
     "type": "latitude",
+    "convert": true,
     "optional": true
   },
   {
@@ -136,6 +143,7 @@
     ],
     "cat": "address",
     "type": "longitude",
+    "convert": true,
     "optional": true
   }
 ]

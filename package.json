@@ -5,6 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "cross-env NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 node .",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "keywords": [],
@@ -15,6 +16,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
+    "change-case": "^4.1.2",
     "cross-env": "^7.0.3",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^8.33.0",

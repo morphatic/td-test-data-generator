@@ -6,7 +6,7 @@
  * @module
  */
 
-import pipe from 'ramda/src/pipe.js'
+import { pipe } from 'ramda'
 
 /**
  * Converts the col spec into an array of column names

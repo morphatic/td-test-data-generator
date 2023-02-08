@@ -22,7 +22,7 @@ describe('Column Specification Helpers', () => {
 
   beforeEach(() => {
     // initialize `colspec` with a deep copy of `baseColSpec`
-    colspec = structuredClone(baseColSpec)
+    colspec = JSON.parse(JSON.stringify(baseColSpec))
   })  
 
 
