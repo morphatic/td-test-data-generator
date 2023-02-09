@@ -44,7 +44,7 @@ inquirer
       default: 0,
       validate: (val, { sourceCount: sc }) =>
            !isNaN(parseInt(val)) 
-        && parseInt(sc) - parseInt(val) >= 0
+        && parseInt(sc) + parseInt(val) >= 0
         || `Please enter an integer that will not result in <=0 rows in TARGET: ${sc}`,
     },
     {
