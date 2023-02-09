@@ -35,7 +35,7 @@ The generator generates TWO tables in `.csv` format: a `SOURCE` and a `TARGET` t
 
 The structure of the generated tables is determined by a file called `colspec.json` that is stored in the root directory of the project. (There's another `colspec.json` in the `test/` directory, but ignore that one.) This file is an array of JSON objects, where each object represents one column in the generated tables. Here's what a column specification looks like:
 
-```json
+```js
 [
    {
       "name": "Txn Amount", // default name of the column
