@@ -1,6 +1,6 @@
-# TD Test Data Generator
+# Test Data Generator
 
-Test data generator for the TD project.
+Test data generator for generating dummy data for data quality engineering projects.
 
 ## Quick Start
 
