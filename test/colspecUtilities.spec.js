@@ -1,3 +1,9 @@
+/**
+ * Unit tests for the utility functions used to manipulate column specifications.
+ * 
+ * @module
+ */
+
 import {
   getColNames,
   getRequiredCols,
@@ -11,12 +17,13 @@ import {
   getFloatColsChoices,
   getDateColsChoices,
   getGeoColsChoices,
+  addNone,
 } from '../src/colspecUtilities.mjs'
 
 // using a standard set of column specificatins for testing
 import baseColSpec from './colspec.json' assert { type: 'json' }
 
-describe('Column Specification Helpers', () => {
+describe('Column Specification Utilities', () => {
 
   let colspec
 
@@ -25,7 +32,6 @@ describe('Column Specification Helpers', () => {
     colspec = JSON.parse(JSON.stringify(baseColSpec))
   })  
 
-
   it('can extract the column names', () => {
     const colNames = getColNames(colspec)
 
@@ -33,16 +39,16 @@ describe('Column Specification Helpers', () => {
     expect(colNames.every(n => typeof n === 'string')).toBe(true)
   })
 
-  it('can get optional columns', () => {
-    const optionalCols = getOptionalCols(colspec)
-
-    expect(optionalCols.every(c => c.optional)).toBe(true)
-  })
-
   it('can get required columns', () => {
     const requiredCols = getRequiredCols(colspec)
 
     expect(requiredCols.every(c => !c.optional)).toBe(true)
+  })
+
+  it('can get optional columns', () => {
+    const optionalCols = getOptionalCols(colspec)
+
+    expect(optionalCols.every(c => c.optional)).toBe(true)
   })
 
   it('can get columns with float values', () => {
@@ -74,6 +80,10 @@ describe('Column Specification Helpers', () => {
     const withoutOpts = getSelectedCols(false, colspec)
 
     expect(withOpts.length > withoutOpts.length).toBe(true)
+  })
+
+  it('can get a list of selected columns, including optional columns or not', () => {
+
   })
 
   it('can create a list of column names whose names can be mangled', () => {
@@ -126,5 +136,11 @@ describe('Column Specification Helpers', () => {
     expect(allColNames.length).toBe(colsWithGeo.length + 1)
     expect(requiredColNames[0]).toBe('None')
     expect(requiredColNames.length).toBe(requiredColsWithGeo.length + 1)
+  })
+
+  it('can add the value "None" to the beginning of a string array', () => {
+    let choices = ['choice 1', 'choice 2', 'choice 3']
+    choices = addNone(choices)
+    expect(choices[0]).toBe('None')
   })
 })

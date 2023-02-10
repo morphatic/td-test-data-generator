@@ -7,119 +7,46 @@
  * @module
  */
 
+import fs from 'fs'
 import inquirer from 'inquirer'
-import {
-  getColNames,
-  getOptionalCols,
-  getColsToMangleChoices,
-  getFloatColsChoices,
-  getDateColsChoices,
-  getGeoColsChoices,
-} from './src/colspecUtilities.mjs'
 import { generate, generateCsv } from './src/generators.mjs'
-
+import {
+  shouldOptionalColumnsBeIncluded,
+  howManyRowsShouldBeInSource,
+  howManyRowsShouldTargetBeRelativeToSource,
+  shouldColumnOrderBeAltered,
+  whichColumnsShouldHaveDifferentNames,
+  whichColumnsShouldHaveFloatsAltered,
+  whichColumnsShouldHaveDatesAltered,
+  whichColumnsShouldHaveLatLonAltered,
+} from './src/questions.mjs'
 import colspec from './colspec.json' assert { type: 'json' }
 
-const optionalColNames = getColNames(getOptionalCols(colspec)).join(', ')
-
+/**
+ * This function starts the CLI tool's Q&A process and then
+ * processes and writes the results to the `output/` directory.
+ */
 inquirer
   .prompt([
-    {
-      type: 'confirm',
-      name: 'includeOptional',
-      message: `Include optional colunns (${optionalColNames})`,
-      default: false,
-    },
-    {
-      type: 'number',
-      name: 'sourceCount',
-      message: 'How many rows should be in the SOURCE data set?',
-      default: 100,
-      validate: val => !isNaN(parseInt(val)) && val > 0 || 'Please enter a positive integer',
-    },
-    {
-      type: 'number',
-      name: 'rowDiff',
-      message: 'How many fewer/additional rows should be in the TARGET data set?',
-      default: 0,
-      validate: (val, { sourceCount: sc }) =>
-           !isNaN(parseInt(val)) 
-        && parseInt(sc) + parseInt(val) >= 0
-        || `Please enter an integer that will not result in <=0 rows in TARGET: ${sc}`,
-    },
-    {
-      type: 'confirm',
-      name: 'colsRandomized',
-      message: 'Should columns in SOURCE and TARGET be in a different order?',
-      default: false,
-    },
-    {
-      type: 'checkbox',
-      name: 'mangleColNames',
-      message: 'Select which columns should have their names altered between SOURCE and TARGET',
-      choices: ({ includeOptional }) => getColsToMangleChoices(includeOptional, colspec),
-      default: ['None'],
-      validate: val => {
-        const valid = (val.includes('None') && val.length === 1) || val.length > 0
-        return valid || 'Please select one or more columns OR "None"'
-      },
-      when: ({ includeOptional }) => getColsToMangleChoices(includeOptional, colspec).length > 1,
-    },
-    {
-      type: 'checkbox',
-      name: 'floatColsToTweak',
-      message: 'Select which float columns should have their values altered between SOURCE and TARGET',
-      choices: ({ includeOptional }) => getFloatColsChoices(includeOptional, colspec),
-      default: ['None'],
-      validate: val => {
-        const valid = val.includes('None') && val.length === 1 || val.length > 0
-        return valid || 'Please select one or more columns OR "None"'
-      },
-      when: ({ includeOptional }) => getFloatColsChoices(includeOptional, colspec).length > 1,
-    },
-    {
-      type: 'checkbox',
-      name: 'dateColsToMangle',
-      message: 'Select which date columns should have their values altered between SOURCE and TARGET',
-      choices: ({ includeOptional }) => getDateColsChoices(includeOptional, colspec),
-      default: ['None'],
-      validate: val => {
-        const valid = val.includes('None') && val.length === 1 || val.length > 0
-        return valid || 'Please select one or more columns OR "None"'
-      },
-      when: ({ includeOptional }) => getDateColsChoices(includeOptional, colspec).length > 1,
-    },
-    {
-      type: 'checkbox',
-      name: 'geoColsToMangle',
-      message: 'Select which lat/lon columns should have their values altered between SOURCE and TARGET',
-      choices: ({ includeOptional }) => getGeoColsChoices(includeOptional, colspec),
-      default: ['None'],
-      validate: val => {
-        const valid = val.includes('None') && val.length === 1 || val.length > 0
-        return valid || 'Please select one or more columns OR "None"'
-      },
-      when: ({ includeOptional }) => getGeoColsChoices(includeOptional, colspec).length > 1,
-    },
+    shouldOptionalColumnsBeIncluded,
+    howManyRowsShouldBeInSource,
+    howManyRowsShouldTargetBeRelativeToSource,
+    shouldColumnOrderBeAltered,
+    whichColumnsShouldHaveDifferentNames,
+    whichColumnsShouldHaveFloatsAltered,
+    whichColumnsShouldHaveDatesAltered,
+    whichColumnsShouldHaveLatLonAltered,
   ])
-  .then((answers = {
-    includeOptional: false,
-    sourceCount: 100,
-    rowDiff: 15,
-    colsRandomized: false,
-    mangleColNames: [],
-    floatColsToTweak: [],
-    dateColsToMangle: [],
-    geoColsToMangle: []
-  }) => {
-    // console.log(answers)
+  .then((answers) => {
     const output = generate(answers, colspec)
-    // console.log(JSON.stringify(output.source))
-    // console.log(JSON.stringify(output.target))
-    // console.log("source rows:", output.source.length)
-    // console.log("target rows:", output.target.length)
-    generateCsv(output)
-  })
+    const csvs = generateCsv(output)
+    try {
+      fs.writeFileSync(csvs.source.path, csvs.source.content)
+      fs.writeFileSync(csvs.target.path, csvs.target.content)
+    } catch (e) {
+      console.log(e)
+    }
+    })
   .catch(error => {
     if (error.isTtyError) {
       // prompt could not be rendered in current environment

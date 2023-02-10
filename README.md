@@ -72,6 +72,10 @@ The structure of the generated tables is determined by a file called `colspec.js
 
 [`@faker-js/faker`](https://www.npmjs.com/package/@faker-js/faker) is a JavaScript library for generating fake data. It has [quite excellent documentation](https://fakerjs.dev/api/). This project is basically just a CLI wrapper around Faker. In theory, you can use *any* of the Faker functions in your column specifications by specifying the appropriate category and function name in the `cat` and `type` fields for the column specs. In practice, only the generators used in the provided `colspec.json` have been tested.
 
+## Tests and Coverage
+
+This project is fully unit tested. e2e tests have been planned but not implemented yet (see issues: [#1](https://github.com//morphatic/test-data-generator/issues/1) and [#2](https://github.com//morphatic/test-data-generator/issues/2)). Tests can be run from the command line using `npm test`. Running `npm run coverage` will run the tests and produce a coverage report both a summary in the terminal, and a full analysis in `coverage/lcov-report/index.html`.
+
 ## Questions
 
 Questions about this library should be directed to morgan.benton@gmail.com, or if you work with me, to my work email.

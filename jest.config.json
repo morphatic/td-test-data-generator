@@ -1,3 +1,5 @@
 {
+  "coverageProvider": "v8",
+  "coverageReporters": ["lcov", "text"],
   "transform": {}
 }

@@ -1,7 +1,7 @@
 /**
- * Column Specicifation Utilities
+ * Column Specification Utilities
  * 
- * These are functions for manipulating the colspec
+ * These are functions for manipulating the column specification objects.
  * 
  * @module
  */

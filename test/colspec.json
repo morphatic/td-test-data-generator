@@ -41,7 +41,8 @@
     "type": "amount",
     "convert": true,
     "min": 100,
-    "max": 99999
+    "max": 99999,
+    "dec": 2
   },
   {
     "name": "Transaction Fee",
@@ -53,7 +54,8 @@
     "type": "amount",
     "convert": true,
     "min": 2,
-    "max": 50
+    "max": 50,
+    "dec": 2
   },
   {
     "name": "From",
