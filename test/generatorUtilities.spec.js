@@ -10,24 +10,24 @@
  * @module
  */
 
-import { expect } from '@jest/globals'
-import { toBeBetween } from './toBeBetween.mjs'
 import {
-  randomItem,
-  mangleName,
-  transpose,
   addSmallValue,
+  convertToCsv,
+  mangleColumnNames,
+  mangleColumns,
+  mangleName,
   maybeAddSmallValue,
   maybeMangleDate,
   maybeMangleGeo,
-  shuffleColumns,
-  convertToCsv,
+  randomItem,
   removeRandomRows,
-  mangleColumns,
-  mangleColumnNames,
+  shuffleColumns,
+  transpose
 } from '../src/generatorUtilities.mjs'
-import testTable from './test_table.json' assert { type: 'json' }
-import colspec from './colspec.json' assert { type: 'json' }
+import colspec from './colspec.mjs'
+import { expect } from '@jest/globals'
+import testTable from './test_table.mjs'
+import { toBeBetween } from './toBeBetween.mjs'
 
 
 expect.extend({
@@ -43,10 +43,26 @@ describe('Test Generation Utilities', () => {
     const selections = Array.from({ length: 1000 }).map(() => randomItem(items))
 
     // calculate the proportion of times each item was selected
-    const a = selections.reduce((as, i) => { as += i === 'A' ? 1 : 0; return as}, 0) / 1000
-    const b = selections.reduce((bs, i) => { bs += i === 'B' ? 1 : 0; return bs}, 0) / 1000
-    const c = selections.reduce((cs, i) => { cs += i === 'C' ? 1 : 0; return cs}, 0) / 1000
-    const d = selections.reduce((ds, i) => { ds += i === 'D' ? 1 : 0; return ds}, 0) / 1000
+    const a = selections.reduce((as, i) => {
+      as += i === 'A' ? 1 : 0
+
+      return as
+    }, 0) / 1000
+    const b = selections.reduce((bs, i) => {
+      bs += i === 'B' ? 1 : 0
+
+      return bs
+    }, 0) / 1000
+    const c = selections.reduce((cs, i) => {
+      cs += i === 'C' ? 1 : 0
+
+      return cs
+    }, 0) / 1000
+    const d = selections.reduce((ds, i) => {
+      ds += i === 'D' ? 1 : 0
+
+      return ds
+    }, 0) / 1000
     
     // expect each to be selecte approximately 25% of the time
     expect(a).toBeBetween(0.2, 0.3)
@@ -59,10 +75,13 @@ describe('Test Generation Utilities', () => {
     const variants = [
       'Sale Date',
       'Date of Sale',
-      'Sale Dt'
+      'Sale Dt',
     ]
     const variations = Array.from({ length: 1000 }).map(() => mangleName(variants))
-    const var1 = variations.reduce((v, i) => { v += i === 'sale_date' ? 1 : 0; return v}, 0) / 1000
+    const var1 = variations.reduce((v, i) => { v += i === 'sale_date' ? 1 : 0;
+
+ return v}, 0) / 1000
+
     expect(var1).toBeBetween(0.28, 0.38)
   })
 
@@ -90,7 +109,10 @@ describe('Test Generation Utilities', () => {
 
   it('can MAYBE add a small decimal fraction to a number', () => {
     const maybes = Array.from({ length: 1000 }).map(() => maybeAddSmallValue(5))
-    const added = maybes.reduce((m, i) => { m += i > 5 ? 1 : 0; return m}, 0) / 1000
+    const added = maybes.reduce((m, i) => { m += i > 5 ? 1 : 0;
+
+ return m}, 0) / 1000
+
     // expecting about 20% to have had a small amount added to them
     expect(added).toBeBetween(0.15, 0.25)
   })
@@ -100,8 +122,12 @@ describe('Test Generation Utilities', () => {
     const maybes = Array.from({ length: 1000 }).map(() => maybeMangleDate(ds))
     const ts = new Date(ds).getTime()
     const locale = new Date(ds).toLocaleString()
-    const stamps = maybes.reduce((s, i) => { s += i === ts ? 1 : 0; return s}, 0) / 1000
-    const locales = maybes.reduce((s, i) => { s += i === locale ? 1 : 0; return s}, 0) / 1000
+    const stamps = maybes.reduce((s, i) => { s += i === ts ? 1 : 0;
+
+ return s}, 0) / 1000
+    const locales = maybes.reduce((s, i) => { s += i === locale ? 1 : 0;
+
+ return s}, 0) / 1000
 
     expect(stamps).toBeBetween(0.05, 0.15)
     // experimentally determined this sometimes needs a buffer as high
@@ -112,8 +138,12 @@ describe('Test Generation Utilities', () => {
   it('can maybe mangle a lat/lon value', () => {
     const lat = 38.4850022
     const maybes = Array.from({ length: 1000 }).map(() => maybeMangleGeo(lat))
-    const tweaks = maybes.reduce((l, i) => { l += i > lat && i < lat + 1 ? 1 : 0; return l}, 0) / 1000
-    const mangles = maybes.reduce((s, i) => { s += i === lat + 180 ? 1 : 0; return s}, 0) / 1000
+    const tweaks = maybes.reduce((l, i) => { l += i > lat && i < lat + 1 ? 1 : 0;
+
+ return l}, 0) / 1000
+    const mangles = maybes.reduce((s, i) => { s += i === lat + 180 ? 1 : 0;
+
+ return s}, 0) / 1000
 
     expect(tweaks).toBeBetween(0.05, 0.15)
     // experimentally determined this sometimes needs a buffer as high
@@ -134,12 +164,18 @@ describe('Test Generation Utilities', () => {
     ]
     const shuffled = shuffleColumns(original)
     // the first column should still have the same elements
-    const originalFirstColumn = original.reduce((ofc, el) => { ofc.push(el[0]); return ofc }, []).sort()
-    const shuffledFirstColumn = shuffled.reduce((ofc, el) => { ofc.push(el[0]); return ofc }, []).sort()
+    const originalFirstColumn = original.reduce((ofc, el) => { ofc.push(el[0]);
+
+ return ofc }, []).sort()
+    const shuffledFirstColumn = shuffled.reduce((ofc, el) => { ofc.push(el[0]);
+
+ return ofc }, []).sort()
+
     expect(shuffledFirstColumn).toEqual(originalFirstColumn)
 
     // the first row (headers) should be in a different order, but contain the same elements
     const firstRow = JSON.parse(JSON.stringify(shuffled[0])).sort()
+
     expect(firstRow).toEqual(original[0])
     expect(shuffled[0]).not.toEqual(original[0])
 
@@ -148,6 +184,7 @@ describe('Test Generation Utilities', () => {
 
     // the order of the rest of the rows should match the new header order
     const newOrder = shuffled[0].slice(1).map(h => original[0].slice(1).findIndex(h2 => h === h2) + 2)
+
     expect(shuffled[2]).toEqual(original[newOrder[0]])
     expect(shuffled[3]).toEqual(original[newOrder[1]])
     expect(shuffled[4]).toEqual(original[newOrder[2]])
@@ -179,6 +216,7 @@ describe('Test Generation Utilities', () => {
       `.replace(/ +/g, '')
     
       const converted = convertToCsv(arrayFormat)
+
     expect(converted).toBe(csvFormat)
   })
 
@@ -214,6 +252,7 @@ describe('Test Generation Utilities', () => {
     
     // Floats: mangled column index 4, not mangled 5
     let table = mangleColumns(testTable, ['Transaction Amount'], 'float')
+
     // Dates: mangled column index 2, not mangled 3
     table = mangleColumns(table, ['Transaction Date'], 'date')
     // Geo: not mangled column indices 11, 14, not mangled 13, 14
@@ -226,6 +265,7 @@ describe('Test Generation Utilities', () => {
     
     // some columns should NOT be ISO8601 dates, i.e. they are mangled
     const isoRE = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/
+
     expect(table[2].every(d => isoRE.test(d))).not.toBe(true) // mangled
     expect(table[3].every(d => isoRE.test(d))).toBe(true) // NOT mangled
     

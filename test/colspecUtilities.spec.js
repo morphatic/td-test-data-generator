@@ -5,23 +5,23 @@
  */
 
 import {
+  addNone,
   getColNames,
-  getRequiredCols,
-  getOptionalCols,
-  getFloatCols,
+  getColsToMangleChoices,
   getColsWithNameVariants,
   getDateCols,
-  getGeoCols,
-  getSelectedCols,
-  getColsToMangleChoices,
-  getFloatColsChoices,
   getDateColsChoices,
+  getFloatCols,
+  getFloatColsChoices,
+  getGeoCols,
   getGeoColsChoices,
-  addNone,
+  getOptionalCols,
+  getRequiredCols,
+  getSelectedCols
 } from '../src/colspecUtilities.mjs'
 
-// using a standard set of column specificatins for testing
-import baseColSpec from './colspec.json' assert { type: 'json' }
+// using a standard set of column specifications for testing
+import baseColSpec from './colspec.mjs'
 
 describe('Column Specification Utilities', () => {
 
@@ -83,7 +83,13 @@ describe('Column Specification Utilities', () => {
   })
 
   it('can get a list of selected columns, including optional columns or not', () => {
+    const useOptionals = true
+    const withOptionals = getSelectedCols(useOptionals, colspec)
+    const withoutOptionals = getSelectedCols(!useOptionals, colspec)
+    const numOptionals = getOptionalCols(colspec).length
 
+    expect(withOptionals.length).toBe(colspec.length)
+    expect(withoutOptionals.length).toBe(colspec.length - numOptionals)
   })
 
   it('can create a list of column names whose names can be mangled', () => {
@@ -140,6 +146,7 @@ describe('Column Specification Utilities', () => {
 
   it('can add the value "None" to the beginning of a string array', () => {
     let choices = ['choice 1', 'choice 2', 'choice 3']
+
     choices = addNone(choices)
     expect(choices[0]).toBe('None')
   })

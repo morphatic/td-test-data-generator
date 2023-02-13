@@ -1,26 +1,27 @@
 /**
- * Generators
+ * ## Generators
  * 
  * This module accepts a completed `answers` array and processes it to produce
  * the test data sets based on a `colspec`.
  * 
- * @module
+ * @module generators
  */
 
-import path from 'path'
-import { fileURLToPath } from 'url'
+import {
+  convertToCsv,
+  mangleColumnNames,
+  mangleColumns,
+  mangleName,
+  removeRandomRows,
+  shuffleColumns,
+  transpose
+} from './generatorUtilities.mjs'
 import { faker } from '@faker-js/faker'
+import { fileURLToPath } from 'url'
+import { getRequiredCols } from './colspecUtilities.mjs'
 import { omit } from 'ramda'
 import { pascalCase } from 'change-case'
-import { getRequiredCols } from './colspecUtilities.mjs'
-import {
-  transpose,
-  convertToCsv,
-  mangleColumns,
-  mangleColumnNames,
-  shuffleColumns,
-  removeRandomRows,
-} from './generatorUtilities.mjs'
+import path from 'path'
 
 // extract this commonly-used helper function
 const { unique } = faker.helpers
@@ -28,6 +29,7 @@ const { unique } = faker.helpers
 const nonParams = ['name', 'variants', 'cat', 'type', 'unique', 'convert', 'opts']
 
 // Reset the default string representation of a date to the ISO 8601 standard
+// eslint-disable-next-line no-extend-native
 Date.prototype.toString = Date.prototype.toISOString
 
 /**
@@ -35,6 +37,33 @@ Date.prototype.toString = Date.prototype.toISOString
  * data generation and transformations and returns two 2D arrays, one for `source`
  * and one for `target`, that contain the rows that will be later converted to
  * CSV format for output.
+ * 
+ * Below are two examples:
+ * 1. Intended usage in the context of an inquirer workflow, but this function can
+ * also be used as a "standalone" function
+ * 2. A standalone example
+ * 
+ * @example <caption>Used within Inquirer CLI Flow</caption>
+ * import colspec from './colspec.mjs'
+ * 
+ * inquirer
+ *   .prompt([
+ *     // ...list of questions
+ *   ]).
+ *   .then(answers => {
+ * 
+ *     const testData = generate(answers, colspec) // <= HERE
+ * 
+ *     // ...then do something with it...
+ *   })
+ * 
+ * @example <caption>Standalone Usage</caption>
+ * import colspec from './colspec.mjs'
+ * 
+ * const answers = {
+ *   // ...(manually) set output/generation parameters
+ * }
+ * const generatedTables = generate(answers, colspec)
  * 
  * @param   {array}  answers The array of answers to CLI questions
  * @param   {array}  colspec The array of column specifications
@@ -49,7 +78,7 @@ export const generate = (answers, colspec) => {
     mangleColNames,
     floatColsToTweak,
     dateColsToMangle,
-    geoColsToMangle
+    geoColsToMangle,
   } = answers
 
   /**
@@ -69,10 +98,12 @@ export const generate = (answers, colspec) => {
     }
     const params = c.opts ? omit(nonParams, c) : Object.values(omit(nonParams, c))
     const rowCount = diff > 0 ? rows + diff : rows
+
     src.push(generateValues(c, params, rowCount))
     if (c.convert) {
       src[i+1] = src[i+1].map(Number)
     }
+
     return src
   }, [])
 
@@ -140,6 +171,7 @@ export const generate = (answers, colspec) => {
  */
 export const generateCsv = data => {
   const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
   return {
     source: {
       path: `${__dirname.replace('src', 'output')}${path.sep}source_${new Date().getTime()}.csv`,
@@ -173,17 +205,20 @@ const generateHeaders = (colspec, mangle) =>
 const generateValues = (col, params, num) => {
   const f = faker[col.cat][col.type]
   let gen
+
   if (col.unique) {
     gen = () => col.opts ? unique(() => f(params)) : unique(() => f(...params))
   } else {
     gen = () => col.opts ? f(params) : f(...params)
   }
   let output
+
   try {
     output = Array.from({ length: num }).map(gen)
   } catch (e) {
     console.log('generateValues failed:', col, params, num)
     console.log(e)
   }
+
   return output
 }

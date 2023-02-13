@@ -5,6 +5,7 @@ module.exports = {
     'jest/globals': true,
   },
   extends: [
+    '@jsdoc',
     'eslint:recommended',
     'standard',
     'prettier',

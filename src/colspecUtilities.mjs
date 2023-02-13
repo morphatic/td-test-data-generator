@@ -3,7 +3,7 @@
  * 
  * These are functions for manipulating the column specification objects.
  * 
- * @module
+ * @module colspecUtilities
  */
 
 import { pipe } from 'ramda'

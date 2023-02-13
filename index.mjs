@@ -7,20 +7,20 @@
  * @module
  */
 
-import fs from 'fs'
-import inquirer from 'inquirer'
 import { generate, generateCsv } from './src/generators.mjs'
 import {
-  shouldOptionalColumnsBeIncluded,
   howManyRowsShouldBeInSource,
   howManyRowsShouldTargetBeRelativeToSource,
   shouldColumnOrderBeAltered,
+  shouldOptionalColumnsBeIncluded,
+  whichColumnsShouldHaveDatesAltered,
   whichColumnsShouldHaveDifferentNames,
   whichColumnsShouldHaveFloatsAltered,
-  whichColumnsShouldHaveDatesAltered,
-  whichColumnsShouldHaveLatLonAltered,
+  whichColumnsShouldHaveLatLonAltered
 } from './src/questions.mjs'
-import colspec from './colspec.json' assert { type: 'json' }
+import colspec from './colspec.mjs'
+import fs from 'fs'
+import inquirer from 'inquirer'
 
 /**
  * This function starts the CLI tool's Q&A process and then
@@ -40,6 +40,7 @@ inquirer
   .then((answers) => {
     const output = generate(answers, colspec)
     const csvs = generateCsv(output)
+
     try {
       fs.writeFileSync(csvs.source.path, csvs.source.content)
       fs.writeFileSync(csvs.target.path, csvs.target.content)

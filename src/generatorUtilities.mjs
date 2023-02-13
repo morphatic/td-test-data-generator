@@ -1,7 +1,7 @@
 /**
  * Utility functions used to generate the test data.
  * 
- * @module
+ * @module generatorUtilities
  */
 
 import { pascalCase, snakeCase } from 'change-case'
@@ -58,6 +58,7 @@ export const maybeAddSmallValue = number => Math.random() < 0.8 ? number : addSm
  */
 export const maybeMangleDate = dt => {
   const rand = Math.random()
+
   if (rand < 0.1) {
     return new Date(dt).getTime()
   } else if (rand >= .1 && rand < .2) {
@@ -77,6 +78,7 @@ export const maybeMangleDate = dt => {
  */
 export const maybeMangleGeo = coord => {
   const rand = Math.random()
+
   if (rand < 0.1) {
     return addSmallValue(coord)
   } else if (rand >= .1 && rand < .15) {
@@ -97,6 +99,7 @@ export const shuffleColumns = (original) => {
   const headers = JSON.parse(JSON.stringify(original[0]))
   const newHeaders = [headers[0], ...headers.slice(1).sort(() => 0.5 - Math.random())]
   const newOrder = original[0].map(h => newHeaders.findIndex(h2 => h === h2) + 1)
+
   newOrder.unshift(undefined) // add a dummy element to the beginning of newOrder
   const shuffled = newOrder.reduce((no, o, i) => {
     if (i === 0) {
@@ -104,8 +107,10 @@ export const shuffleColumns = (original) => {
     } else {
       no[o] = original[i]
     }
+
     return no
   }, Array.from({ length: original.length }))
+
   return shuffled
 }
 
@@ -115,8 +120,8 @@ export const shuffleColumns = (original) => {
  * @param   {array}  tableArray The 2D array to be converted to CSV
  * @returns {string}            A CSV-formatted string representing the table
  */
-export const convertToCsv = tableArray => tableArray.reduce((content, row) => {
-  content += row.reduce((csv, val, i, row) => {
+export const convertToCsv = tableArray => tableArray.reduce((content, record) => {
+  content += record.reduce((csv, val, i, row) => {
     csv += typeof val === 'number' ? `,${val}` : `,"${val}"`
     if (i === 0) {
       csv = csv.replace(',', '')
@@ -124,8 +129,10 @@ export const convertToCsv = tableArray => tableArray.reduce((content, row) => {
     if (i === row.length - 1) {
       csv += '\n'
     }
+
     return csv
   }, '')
+
   return content
 }, '')
 
@@ -139,10 +146,12 @@ export const convertToCsv = tableArray => tableArray.reduce((content, row) => {
 export const removeRandomRows = (table, num)   => {
   const header = table[0]
   const dataRows = table.slice(1)
-  const _ = Array.from({ length: num })
+  
+  Array.from({ length: num })
     .map(() => Math.floor(Math.random() * dataRows.length))
     .sort((a, b) => b - a) // descending order
     .map(n => dataRows.splice(n, 1))
+
   return [header, ...dataRows]
 }
 
@@ -160,11 +169,14 @@ export const mangleColumns = (table, colsToMangle, type) => {
   const tweakedFloatCols = colsToMangle.map(pascalCase)
   const indices = tweakedFloatCols.reduce((idc, col) => {
     const i = table[0].findIndex(el => el === col)
+
     if (i !== -1) {
       idc.push(i + 1) // +1 accounts for existence of header row
     }
+
     return idc
   }, [])
+
   return table.reduce((t, _, i) => {
     if (indices.includes(i)) {
       switch (type) {
@@ -177,10 +189,12 @@ export const mangleColumns = (table, colsToMangle, type) => {
         case 'geo':
           t[i] = table[i].map(maybeMangleGeo)
           break
+        default:
       }
     } else {
       t[i] = table[i]
     }
+
     return t
   }, [])
 }
@@ -200,13 +214,17 @@ export const mangleColumnNames = (table, columnsToMangle, columnSpec) => {
   // clone the table
   table = JSON.parse(JSON.stringify(table))
   const colNamesToMangle = columnsToMangle.map(pascalCase)
+
   table[0] = table[0].map(h => {
     if (colNamesToMangle.includes(h)) {
       const spec = columnSpec.find(s => pascalCase(s.name) === h)
       const variants = [spec.name, ...spec.variants]
+
       return snakeCase(variants[Math.floor(Math.random() * variants.length)])
     }
+
     return h
   })
+
   return table
 }

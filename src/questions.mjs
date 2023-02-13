@@ -3,19 +3,19 @@
  * be included in the CLI tool. The format is defined by the Inquirer library.
  * See: https://www.npmjs.com/package/inquirer
  * 
- * @module
+ * @module questions
  */
 
 import {
   getColNames,
-  getOptionalCols,
   getColsToMangleChoices,
-  getFloatColsChoices,
   getDateColsChoices,
+  getFloatColsChoices,
   getGeoColsChoices,
+  getOptionalCols
 } from './colspecUtilities.mjs'
 
-import colspec from '../colspec.json' assert { type: 'json' }
+import colspec from '../colspec.mjson'
 
 const optionalColNames = getColNames(getOptionalCols(colspec)).join(', ')
 
@@ -31,7 +31,7 @@ export const howManyRowsShouldBeInSource = {
   name: 'sourceCount',
   message: 'How many rows should be in the SOURCE data set?',
   default: 100,
-  validate: val => !isNaN(parseInt(val)) && val > 0 || 'Please enter a positive integer',
+  validate: val => !isNaN(parseInt(val, 10)) && val > 0 || 'Please enter a positive integer',
 }
 
 export const howManyRowsShouldTargetBeRelativeToSource = {
@@ -40,8 +40,8 @@ export const howManyRowsShouldTargetBeRelativeToSource = {
   message: 'How many fewer/additional rows should be in the TARGET data set?',
   default: 0,
   validate: (val, { sourceCount: sc }) =>
-       !isNaN(parseInt(val)) 
-    && parseInt(sc) + parseInt(val) >= 0
+       !isNaN(parseInt(val, 10)) 
+    && parseInt(sc, 10) + parseInt(val, 10) >= 0
     || `Please enter an integer that will not result in <=0 rows in TARGET: ${sc}`,
 }
 
@@ -60,6 +60,7 @@ export const whichColumnsShouldHaveDifferentNames = {
   default: ['None'],
   validate: val => {
     const valid = (val.includes('None') && val.length === 1) || val.length > 0
+
     return valid || 'Please select one or more columns OR "None"'
   },
   when: ({ includeOptional }) => getColsToMangleChoices(includeOptional, colspec).length > 1,
@@ -73,6 +74,7 @@ export const whichColumnsShouldHaveFloatsAltered = {
   default: ['None'],
   validate: val => {
     const valid = val.includes('None') && val.length === 1 || val.length > 0
+
     return valid || 'Please select one or more columns OR "None"'
   },
   when: ({ includeOptional }) => getFloatColsChoices(includeOptional, colspec).length > 1,
@@ -86,6 +88,7 @@ export const whichColumnsShouldHaveDatesAltered = {
   default: ['None'],
   validate: val => {
     const valid = val.includes('None') && val.length === 1 || val.length > 0
+
     return valid || 'Please select one or more columns OR "None"'
   },
   when: ({ includeOptional }) => getDateColsChoices(includeOptional, colspec).length > 1,
@@ -99,6 +102,7 @@ export const whichColumnsShouldHaveLatLonAltered = {
   default: ['None'],
   validate: val => {
     const valid = val.includes('None') && val.length === 1 || val.length > 0
+
     return valid || 'Please select one or more columns OR "None"'
   },
   when: ({ includeOptional }) => getGeoColsChoices(includeOptional, colspec).length > 1,

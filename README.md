@@ -9,7 +9,7 @@ From the terminal,
 1. Clone this repo
 2. `cd test-data-generator`
 3. `npm install`
-4. `npm -s start`
+4. `npm -s start` (the `-s` prevents annoying warnings from being output)
 5. Answer the questions
 6. Test data will be in the `output/` directory
 
@@ -75,6 +75,10 @@ The structure of the generated tables is determined by a file called `colspec.js
 ## Tests and Coverage
 
 This project is fully unit tested. e2e tests have been planned but not implemented yet (see issues: [#1](https://github.com//morphatic/test-data-generator/issues/1) and [#2](https://github.com//morphatic/test-data-generator/issues/2)). Tests can be run from the command line using `npm test`. Running `npm run coverage` will run the tests and produce a coverage report both a summary in the terminal, and a full analysis in `coverage/lcov-report/index.html`.
+
+| :Warning: |
+| **Because some of the functions being tested are based on random numbers, there MAY be some failures when you run the tests due to expected outputs being slightly out of range. Generally, re-running the tests will allow them to pass. If you run them four or five times in a row and still get an error, there may be something needing to be fixed.** |
+| --- |
 
 ## Questions
 
